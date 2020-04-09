@@ -1,2 +1,5 @@
-Hello world
-Hi
+a int
+d float
+c float
+x double
+y int

@@ -2,8 +2,37 @@
 #include <iostream>
 #include <conio.h>
 #include <QtGlobal>
-
+#include <QFile>
+#include <QMap>
 using namespace std;
+
+//ЗАМЕТКИ//
+/*
+str=str+file.readLine();                      ПОСТРОЧНОЕ ЧТЕНИЕ
+*/
+
+//чтение из файла
+void read_file (QMap<QString, QString> data)
+{
+    QString str; //создаем объект класса QString для хранения строки из файла
+    QFile file ("C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/test.txt"); //создаем объект класса QFile
+    QStringList list; //объект класса QStringList для хранения подстрок текущей строки файла
+
+    //если возможно открыть файл для чтения...
+    if (file.open(QIODevice::ReadOnly))
+    {
+        //до тех пор, пока не достигли конца файла...
+        while(!file.atEnd())
+        {
+            str=str+file.readLine(); //сохраняем в объект str текущую строку из файла
+            list = str.split( QRegExp("\\s+")); //разбиваем текущую строку файла на подстроки и сохраняем их в контейнере list
+            data.insert(list[0], list[1]); //добавляем в словарь полученные подстроки
+            str = ""; //очищаем объект str для хранения следующей строки
+        }
+        file.close(); //закрываем файл
+    }
+}
+
 
 //стуктура, хранящая данные об одном узле в дереве
 struct Node
@@ -13,8 +42,8 @@ struct Node
     Node * left; //левая ветвь
 };
 
-QString postfix_expression;// строка в обратной польской записи
-int top = -1; //индекс элемента в стеке
+QString postfix_expression; //создаем объект класса QString для хранения строки в обратной польской записи
+int top = -1; //переменная для хранения индекса элемента в стеке
 Node * stack[ 35 ]; //стек из элементов типа Node
 
 //проверка того, что подстрока является оператором
@@ -96,6 +125,13 @@ Node* expression_tree_from_postfix(QString postfix_notation)
     return stack[0]; //вернуть элемент начала стека
 }
 
+//обходв глубину
+int depth_first_search()
+{
+
+}
+
+//представление нотаций
 void preOrder(Node *part_of_tree)
 {
     if (part_of_tree != NULL)
