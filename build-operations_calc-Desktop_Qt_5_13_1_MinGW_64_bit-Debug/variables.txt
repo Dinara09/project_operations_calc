@@ -1,5 +1,5 @@
 a int
-d float
+b float
 c float
 x double
 y int
