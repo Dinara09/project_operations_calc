@@ -5,36 +5,65 @@
 #include <QFile>
 #include <QMap>
 #include <QStack>
-
+#include <QTextStream>
 using namespace std;
 
-//ЗАМЕТКИ//
-/*
-str=str+file.readLine();                      ПОСТРОЧНОЕ ЧТЕНИЕ
-*/
-/*class Error
+//класс для хранения инфромации об ошибках
+class Error
 {
-    int code_of_error;
-    int line_of_error;
-    QString information_of_error;
+    int code_of_error; //код ошибки
+    int column_of_error; //столбец с ошибкой
+    QString information_of_error; //причина ошибки
 
 public:
+
     //конструктор по-умолчанию
     Error ()
     {
         this->code_of_error = NULL;
-        this->line_of_error = NULL;
+        this->column_of_error = NULL;
         this->information_of_error = nullptr;
     }
 
     //конструктор с параметрами
-    Error (int code_of_error, int line_of_error, QString information_of_error)
+    Error (int code_of_error, int column_of_error, QString information_of_error)
     {
         this->code_of_error = code_of_error;
-        this->line_of_error = line_of_error;
+        this->column_of_error = column_of_error;
         this->information_of_error = information_of_error;
     }
-};*/
+
+    //получение данных о поле code_of_error
+    int get_code_error_code ()
+    {
+        return this->code_of_error; //вернуть содержимое  поля code_of_error
+    }
+
+    //получение данных о поле column_of_error
+    int get_line_of_error ()
+    {
+        return this->column_of_error; //вернуть содержимое  поля column_of_error
+    }
+
+    //получение данных о поле information_of_error
+    QString get_information_of_error ()
+    {
+        return this->information_of_error; //вернуть содержимое  поля information_of_error
+    }
+};
+
+//проверка того, что подстрока является оператором
+bool is_operator (QString substr_of_expression)
+{
+    //если подстрока удовлетворяет данному условию...
+    if (substr_of_expression == "/" || substr_of_expression == "*" || substr_of_expression == "+" || substr_of_expression == "-"
+            || substr_of_expression == "-?" || substr_of_expression == "+?")
+    {
+        return true;// вернуть признак того, что подстрока - оператор
+    }
+
+    return false;// иначе, вернуть прихнак того, что подстрока - операнд
+}
 
 //класс, содержащий данные об одном узле дерева
 class Node
@@ -43,7 +72,7 @@ class Node
     QString value; //узел
     Node* right; //правая вершина данного узла
     Node* left; //левая вершина данного узла
-    QString type_of_node;
+    QString type_of_node; //тип узла
 
 public:
     //конструктор по-умолчанию
@@ -73,499 +102,563 @@ public:
         this->type_of_node = nullptr;
     }
 
-    //проверка того, что подстрока является оператором
-    bool is_operator (QString substr_of_expression)
+    //проверка на количество операторов выражении
+    void validation_of_quantity(QList <Error>& errors, QStringList& list)
     {
-        if (substr_of_expression == "/" || substr_of_expression == "*" || substr_of_expression == "+" || substr_of_expression == "-"
-                || substr_of_expression == "-?" || substr_of_expression == "+?") //если подстрока удовлетворяет данному условию...
+        int count_of_operation = 0; //создать счетчик для подсчета количества операторов и обнулить его
+
+        //пока не дошли до конца выражения...
+        for (int i = 0; i < list.size(); i++)
         {
-            return true;// вернуть признак того, что подстрока - оператор
+            //если текущий элемент оператор...
+            if (is_operator(list[i]))
+            {
+                count_of_operation++; //увеличиваем счетчик
+            }
         }
 
-        return false;// иначе, вернуть прихнак того, что подстрока - операнд
+        //если счетчик меньше 1....
+        if (count_of_operation < 1)
+        {
+            Error few_operations (0, count_of_operation, "too few operations"); //создать объект класса Error и запомнить информацию о малом количестве операторов
+            errors.append(few_operations); //добавить ошибку в контейнер
+        }
+
+        //иначе если счетчик больше 10...
+        else if (count_of_operation > 10)
+        {
+            Error many_operations (1, count_of_operation, "too many operations"); //создать объект класса Error запомнить информацию о превыщающем количестве операторов
+            errors.append(many_operations); //добавить ошибку в контейнер
+        }
     }
 
-    Node* parent_of_node (QMap <int, Node*> &visit, Node* current_node)
+    //проверка на содержание в строке знака операции
+    bool is_contains_operation (QString str)
     {
-        QMap <int, Node*>::iterator iter;
-        Node* node;
-        for(iter = visit.begin(); iter != visit.end(); ++iter)
+        bool is_contains = false; //создать переменную о содержании знака и запомнить в ней false
+
+        //если содержится "+"...
+        if (str.contains("+", Qt:: CaseSensitive))
         {
-            node = iter.value();
-            if (iter.value()->right == current_node || iter.value()->left == current_node)
-            {
-                return iter.value();
-            }
-            /*if (node->left != nullptr || node->right != nullptr)
-            {
-                if (node->right != nullptr)
-                {
-                    if ((node->right->value == this->value && node->right->left == this->left && node->right->right == this->right) || (node->left->value == this->value && node->left->left == this->left && node->left->right == this->right) )
-                    {
-                        return iter.value();
-                    }
-                }
-                else
-                {
-                    if (node->left->value == this->value && node->left->left == this->left && node->left->right == this->right)
-                    {
-                        return iter.value();
-                    }
-                }
-            }*/
+            is_contains = true; //запомнить true
         }
-        return nullptr;
+        //если содержится "-"...
+        else if (str.contains("-", Qt:: CaseSensitive))
+        {
+            is_contains = true; //запомнить true
+        }
+        //если содержится "/"...
+        else if (str.contains("/", Qt:: CaseSensitive))
+        {
+            is_contains = true; //запомнить true
+        }
+        //если содержится "*"...
+        if (str.contains("*", Qt:: CaseSensitive))
+        {
+            is_contains = true; //запомнить true
+        }
+        //если содержится "-?"...
+        if (str.contains("-?", Qt:: CaseSensitive))
+        {
+            is_contains = true; //запомнить true
+        }
+        //если содержится "+?"...
+        if (str.contains("+?", Qt:: CaseSensitive))
+        {
+            is_contains = true; //запомнить true
+        }
+
+        return is_contains; //вернуть признак содержания
+    }
+
+    //проверка на содержание переменной в контейнере
+    bool is_in_the_container (QString character, QMap<QString, QString>& data)
+    {
+        QMap <QString, QString>::iterator iter; // итератор для контейнера
+        bool is_find = false; //создать переменную о признаки нахождения элемента в контейнере и запомнить в ней false
+
+        //для всех элементов контейнера и пока не дошли до конца контейнера...
+        for(iter = data.begin(); iter != data.end(); ++iter)
+        {
+            //если текущий элемент найден...
+            if (iter.key() == character)
+            {
+                is_find = true; //запомнить true
+            }
+        }
+
+        return is_find; //вернуть признак нахождения элемента в контейнере
+    }
+
+    //проверка на валидность содержимого выражения
+    void is_valid_character (QList <Error>& errors, QStringList& list, QMap<QString, QString>& variables, QMap<QString, QString>& cost)
+    {
+        QRegExp reg_const_character ("\\d*,?\\d*"); //регулярное выражение для проверки константной переменной
+        QRegExp reg_sequence_of_variables ("[a-z]+"); //регулярное выражение для проверки последовательности переменных
+        QRegExp reg_variable("[a-z]"); //регулярное выражение для проверки переменной
+
+        //для всех элементов строки и пока не дошли до конца...
+        for (int i = 0; i < list.size(); i++)
+        {
+            //если текущий элемент не оператор и текущий элемент содержит знак операции...
+            if (!is_operator (list[i]) && is_contains_operation(list[i]))
+            {
+                Error missing_space (2, i, "missing space between arguments"); //создать объект класса Error и запомнить информацию о пропуске пробела
+                errors.append(missing_space); //добавить ошибку в контейнер
+            }
+            //иначе если текущий элемент не оператор и не содержится в контейнере с переменными и не соответствует констатной переменной и соответсвует последовательности переменных...
+            else if (!is_operator(list[i]) && !is_in_the_container(list[i], variables) && !reg_const_character.exactMatch(list[i]) && reg_sequence_of_variables.exactMatch(list[i]))
+            {
+                Error missing_space (3, i, "missing space between arguments"); //создать объект класса Error и запомнить информацию о пропуске пробела
+                errors.append(missing_space); //добавить ошибку в контейнер
+            }
+            //иначе если текущий элемент не оператор и не содержится в контейнере с переменными  и не соответствует констатной переменной и не соответсвует последовательности переменных...
+            else if (!is_operator(list[i]) && !is_in_the_container(list[i], variables) && !reg_const_character.exactMatch(list[i]) && !reg_sequence_of_variables.exactMatch(list[i]))
+            {
+                Error invalid_characters (4, i, "invalid characters in expression"); //создать объект класса Error и запомнить информацию о недопустимом символе
+                errors.append(invalid_characters); //добавить ошибку в контейнер
+            }
+            //иначе если текущий элемент не оператор и соответствует переменной и не содержится в контейнере с переменными...
+            else if (!is_operator(list[i]) && reg_variable.exactMatch(list[i]) && !is_in_the_container(list[i], variables))
+            {
+                Error no_operand_information (5, i, "no information about variable"); //создать объект класса Error и запомнить информацию об отсутствие информации о перемнной
+                errors.append(no_operand_information); //добавить ошибку в контейнер
+            }
+            //иначе если текущий элемент оператор и не содержится в контейнере с весами...
+            else if (is_operator(list[i]) && !is_in_the_container(list[i], cost))
+            {
+                Error no_operator_information (6, i, "no information about operator"); //создать объект класса Error и запомнить информацию об отсутствие информации о операции
+                errors.append(no_operator_information); //добавить ошибку в контейнер
+            }
+        }
     }
 
     //построение дерева из обратной польской записи
-    Node *expression_tree_from_postfix(QString postfix_notation, QStack<Node*>& stack, QMap <int, Node*>& all_nodes)
+    Node *expression_tree_from_postfix(QString postfix_notation, QStack<Node*>& stack, QMap <int, Node*>& all_nodes, QList <Error>& errors, QMap<QString, QString>& variables, QMap<QString, QString>& cost )
     {
-        QString substr; //строка, хранящая текущую подстроку выражения в обратной польской записи
+        QString current_substr_expression; //строка, хранящая текущую подстроку выражения в обратной польской записи
+        Node *peek; //объект класса Node для запоминанния верхнего элемента стека
         Node *part_of_tree;
-        Node  *right_branch, *left_branch; //
-        QStringList list; //контейнер, хранящий подстроки выражения в обратной польской записи
+        Node  *right_branch, *left_branch; //левая и правая вершины текущего узла
+        QStringList expression_elements; //контейнер, хранящий подстроки выражения в обратной польской записи
         int index_of_current_substr; //индекс текущей подстроки в контейнере list
         int size_of_expression = 0; //количество операторов и операндов в выражении
 
-        for (int i = 0; i < postfix_notation.size(); i++) //для всех символов строки и пока не дошли до конца...
+        //для всех символов строки и пока не дошли до конца...
+        for (int i = 0; i < postfix_notation.size(); i++)
         {
-            if (postfix_notation[i] == ' ') //если текущий символ - пробел...
+            //если текущий символ - пробел...
+            if (postfix_notation[i] == ' ')
             {
                 size_of_expression++; //инкрементируем значение операндов и операторов
             }
         }
-        size_of_expression++; //инкрементрием значение операндов и операторов (в итоге получаем значение операторов и операндов в строке)
+        size_of_expression++; //инкрементируем значение операндов и операторов (в итоге получаем значение операторов и операндов в строке)
 
-        /*if (size_of_expression < 2) //если выражение состоит меньше, чем из двух подстрок
+        expression_elements = postfix_notation.split(QRegExp("\\s+")); //разбиваем выражение в обратной польской записи на подстроки и сохраняем их в контейнере expression_elements
+        current_substr_expression = expression_elements[0]; //запоминаем в переменной current_substr_expression первую подстроку выражения в обратной польской записи
+        index_of_current_substr = 1; //переменная, хранящая индекс текущей подстроки в контейнере expression_elements становится равной 1
+        validation_of_quantity(errors, expression_elements); //проверка валидности количества операторов
+        is_valid_character(errors, expression_elements, variables, cost); //проверка валидности содержимого выражения
+
+        //если контейнер с ошибками пуст...
+        if (errors.empty())
         {
-            Error too_few_arguments(0, 101, "too_few_arguments"); //создаем и заполняем объект класса Error
-            errors.insert(0, too_few_arguments); //запоминаем ошибку в контейнере QList
-        }*/
-
-        list = postfix_notation.split( QRegExp("\\s+")); //разбиваем выражение в обратной польской записи на подстроки и сохраняем их в контейнере list
-        substr = list[0]; //запоминаем в переменной substr первую подстроку выражения в обратной польской записи
-        index_of_current_substr = 1; //переменная, хранящая индекс текущей подстроки в контейнере list становится равной 1
-
-        for (int i = 1; substr != nullptr && index_of_current_substr <= size_of_expression; i++) //для каждой подстроки выражения и пока не дошли до конца
-        {//и индекс текущей подстроки в контейнере list не больше количества операторов и операндов в выражении...
-
-            if (!is_operator(substr)) //если подстрока - операнд...
+            //для каждой подстроки выражения и пока не дошли до конца и индекс текущей подстроки в контейнере expression_elements не больше количества операторов и операндов в выражении...
+            for (int i = 1; current_substr_expression != nullptr && index_of_current_substr <= size_of_expression; i++)
             {
-                Node *part_of_tree = new Node (substr); //инициализируем объект при помощи конструктора с одним параметром
-                stack.push(part_of_tree); //добавить текущий элемент в стек
-                all_nodes.insert(i-1, part_of_tree);
-            }
-
-            else //иначе, если текущая подстрока - операнд...
-            {
-                if (substr == "-?" || substr == "+?")
+                //если подстрока - операнд...
+                if (!is_operator(current_substr_expression))
                 {
-                    left_branch = stack.pop(); //выгрузить из стека текущий элемент и запомнить в перемнную right_branch
-                    part_of_tree = new Node (substr, nullptr, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
+                    Node *part_of_tree = new Node (current_substr_expression); //инициализируем объект при помощи конструктора с одним параметром
+                    stack.push(part_of_tree); //добавить текущий элемент в стек
+                    all_nodes.insert(i-1, part_of_tree); //добавить текущий элемент в контейнер
                 }
+
+                //иначе, если текущая подстрока - операнд...
                 else
                 {
-                    right_branch = stack.pop(); //выгрузить из стека текущий элемент и запомнить в перемнную right_branch
-                    left_branch = stack.pop(); //выгрузить из стека следующий за текущий элемент в переменную left_branch
-                    part_of_tree = new Node (substr, right_branch, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
-                }
-
-                stack.push(part_of_tree); //добавить текущий элемент в стек
-                all_nodes.insert(i-1, part_of_tree);
-            }
-
-            if (index_of_current_substr != size_of_expression) //если индекс текущей подстроки в контейнере list не равен больше количеству операторов и операндов в выражении...
-                substr = list[i]; //достать из контейнера list  следующую подстроку и запомнить ее в перемнную substr
-
-            index_of_current_substr++; //инкрементировать значение индекса текущей подстроки
-        }
-        return stack[0]; //вернуть элемент начала стека
-    }
-
-    int search_current_node (QMap <int, Node*> &visit)
-    {
-        QMap<int, Node*>::iterator iter;
-        for (iter = visit.begin(); iter != visit.end(); ++iter)
-        {
-
-            if (iter.value() == this)
-            {
-                return iter.key();
-            }
-        }
-        return NULL;
-    }
-
-    Node* depth_first_search(QMap <int, Node*>& all_nodes, QMap <int, Node*> &visit, int &count, QStack <Node*>& stack)
-    {
-        while (all_nodes.size() != visit. size())
-        {
-            count++;
-
-            if (this->left != nullptr && this->left->search_current_node(visit) == NULL)
-            {
-                if (this->search_current_node(visit) == NULL)
-                {
-                    visit.insertMulti(count, this);
-                }
-                stack.push(this);
-                return left->depth_first_search(all_nodes, visit, count, stack);
-            }
-
-            if (this->right != nullptr && this->right->search_current_node(visit) == NULL)
-            {
-                if (this->search_current_node(visit) == NULL)
-                {
-                    visit.insertMulti(count, this);
-                }
-                stack.push(this);
-                return right->depth_first_search(all_nodes, visit, count, stack);
-            }
-
-            if (this->left == nullptr && this->right == nullptr)
-            {
-                if (this->search_current_node(visit) == NULL)
-                {
-                    visit.insertMulti(count, this);
-                    if (!stack.empty())
+                    //если элемент равен "-?" или "+?"...
+                    if (current_substr_expression == "-?" || current_substr_expression == "+?")
                     {
-                    Node*peek = stack.pop();
-                    int key = peek->search_current_node(visit);
-                    if (visit.value(key)->right != nullptr)
-                    {
-                        return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack);
+                        left_branch = stack.pop(); //выгрузить из стека текущий элемент и запомнить в переменную right_branch
+                        part_of_tree = new Node (current_substr_expression, nullptr, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
                     }
+
+                    //иначе...
                     else
                     {
-                        peek = stack.pop();
-                        key = peek->search_current_node(visit);
-                        return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack);
-                    }
+                        right_branch = stack.pop(); //выгрузить из стека текущий элемент и запомнить в переменную right_branch
+                        left_branch = stack.pop(); //выгрузить из стека следующий за текущий элемент в переменную left_branch
+                        part_of_tree = new Node (current_substr_expression, right_branch, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
                     }
 
+                    stack.push(part_of_tree); //добавить текущий элемент в стек
+                    all_nodes.insert(i-1, part_of_tree); //добавить текущий элемент в контейнер с узлами дерева
                 }
 
+                //если индекс текущей подстроки в контейнере expression_elements не равен больше количеству операторов и операндов в выражении...
+                if (index_of_current_substr != size_of_expression)
+                {
+                    current_substr_expression = expression_elements[i]; //достать из контейнера expression_elements  следующую подстроку и запомнить ее в переменную current_substr_expression
+                }
+
+                index_of_current_substr++; //инкрементировать значение индекса текущей подстроки
             }
+            peek = stack[0]; //вернуть элемент начала стека
         }
 
-        return visit.last();
-     }
-
-
-    void remove (QMap <int, Node*>& nodes)
-    {
-        QMap <int, Node*>::iterator iter;
-        bool is_find = false;
-        iter = nodes.begin();
-
-        while (is_find != true)
+        //иначе...
+        else
         {
+            peek = new Node (); //запомнить в переменной для хранения верхнего элемента стека пустой узел
+        }
+
+        return peek; //вернуть верхний элемент стека
+    }
+
+    //поиск текущего узла дерева в контейнере, хранящем узлы дерева
+    int search_current_node (QMap <int, Node*> &visit)
+    {
+        QMap<int, Node*>::iterator iter; //создаем итератор
+
+        //для всех элементов контейнера и пока не дошли до конца контейнера...
+        for (iter = visit.begin(); iter != visit.end(); ++iter)
+        {
+            //если текущей элемент контейнера равен текущему узлу дерева...
             if (iter.value() == this)
             {
-                nodes.erase(iter);
-                is_find = true;
-            }
-            else
-            {
-                if (iter != nodes.end())
-                iter++;
-                else is_find = true;
+                return iter.key(); //вернуть ключ этого элемента
             }
         }
-
+        return NULL; //иначе если текущий узел дерева не найден в контейнере, вернуть NULL
     }
 
-
-    int sum_of_operations (QMap <int, Node*>& visit, QMap <QString, QString>& variables, QMap <QString, QString>& cost)
+    //поиск глубины дерева
+    Node* depth_first_search(QMap <int, Node*>& all_nodes, QMap <int, Node*> &visit, int &count, QStack <Node*>& stack, QMap<QString, QString>& variables, QMap<QString, QString>& cost, QVector <int>& sum_of_operation, QStack <Node*>& stack1)
     {
-        Node* parent;
-        QVector <int> sum_of_operation;
-        int sum = 0;
-        int count = 0;
-
-        QMap <int, Node*> labeled_nodes;
-        QMap <int, Node*> visit1;
-        QStack <Node*> stack;
-        labeled_nodes = visit;
-        Node * node;
-        parent = parent_of_node(visit, visit.last());
-
-        while (parent != nullptr)
+        //пока не посетили все узлы дерева...
+        while (all_nodes.size() != visit. size())
         {
-            //key = this->search_current_node(visit);
-            //parent = parent_of_node(visit);
+            count++; //увеличиваем счетчик, указывающий на расстояние от вершины дерева
 
-            if (parent_of_node(visit, parent) == nullptr)
+            //если существует левая вершина текущего узла и вершина не была посещена...
+            if (this->left != nullptr && this->left->search_current_node(visit) == NULL)
             {
-                if (!labeled_nodes.empty())
+                //если текущий узел не был посещен...
+                if (this->search_current_node(visit) == NULL)
                 {
-                    parent->remove(labeled_nodes);
-                    if (parent->right->search_current_node(labeled_nodes) != NULL)
-                    {
-                        node = parent->right->depth_first_search(labeled_nodes, visit1,count,stack);
-                    }
-                    else if (parent->left->search_current_node(labeled_nodes) != NULL)
-                    {
-                        node = parent->left->depth_first_search(labeled_nodes, visit1,count,stack);
-                    }
-                    parent = parent_of_node(visit, node);
+                    visit.insertMulti(count, this); //отметить текущий узел посещенным
                 }
 
+                stack.push(this); //добавить текущий узел в стек
+                return left->depth_first_search(all_nodes, visit, count, stack, variables, cost, sum_of_operation, stack1); //вызвать функцию для левой вершины данного узла
             }
 
-            sum_of_operation.prepend(parent->sum_of_current_operation(variables, cost));
-            parent->left->remove(labeled_nodes);
-            parent->right->remove(labeled_nodes);
-            parent->remove(labeled_nodes);
-
-            if (parent_of_node(visit, parent) != nullptr)
+            //если существует правая вершина текущего узла и вершина не была посещена...
+            if (this->right != nullptr && this->right->search_current_node(visit) == NULL)
             {
-                parent = parent_of_node(visit, parent);
+                //если текущий узел не был посещен...
+                if (this->search_current_node(visit) == NULL)
+                {
+                    visit.insertMulti(count, this); //отметить текущий узел посещенным
+                }
+
+                stack.push(this); //добавить текущий узел в стек
+                return right->depth_first_search(all_nodes, visit, count, stack, variables, cost, sum_of_operation, stack1); //вызвать функцию для правой вершины данного узла
             }
-            else
-                parent = nullptr;
 
+            //если не существует ни левой, ни правой вершины текущего узла...
+            if (this->left == nullptr && this->right == nullptr)
+            {
+                //если текущий узел не был посещен...
+                if (this->search_current_node(visit) == NULL)
+                {
+                    visit.insertMulti(count, this); //отметить текущий узел посещенным
+                    this->type_of_node = this->recognize_node_type(variables); //определить тип текущего узла и запомнить его
 
+                    //если у родителя текущего узла есть левая вершина с определенной приоритетностью и нет правой...
+                    if (recognize_parent_of_node(all_nodes, this)->left->type_of_node != nullptr && recognize_parent_of_node(all_nodes, this)->right == nullptr)
+                    {
+                        sum_of_operation.prepend(recognize_parent_of_node(all_nodes, this)->sum_of_current_operation(variables, cost)); //определить стоимость операции и сохранить в вектор
 
+                    }
+
+                    //иначе если у родителя текущего узла есть и правая и левая вершины с определенными приоритетностями...
+                    else if (recognize_parent_of_node(all_nodes, this)->left->type_of_node != nullptr && recognize_parent_of_node(all_nodes, this)->right->type_of_node != nullptr)
+                    {
+                        sum_of_operation.prepend(recognize_parent_of_node(all_nodes, this)->sum_of_current_operation(variables, cost)); //определить стоимость операции и сохранить в вектор
+
+                        //если стек1 не пустой...
+                        if (!stack1.empty())
+                        {
+                            stack1.pop(); //удалить верхний элемент
+                        }
+                    }
+
+                    //иначе...
+                    else
+                    {
+                        stack1.push(recognize_parent_of_node(all_nodes, this)); //загрузить в стек1 текущий элемент
+                    }
+
+                    //если стек1 не пустой...
+                    if (!stack1.empty())
+                    {
+                        Node* element_of_stack1; //создать объект класса Node
+                        element_of_stack1 = stack1.top(); //сохранить в него верхний элемент стека
+
+                        //если у левой и правой вершины сохраненного элемента определены типы...
+                        if (element_of_stack1->left->type_of_node != nullptr && element_of_stack1->right->type_of_node != nullptr)
+                        {
+                            sum_of_operation.prepend(element_of_stack1->sum_of_current_operation(variables, cost)); //определить стоимость текущей операции и сохранить в вектор
+                            stack1.pop(); //извлечь из стека верхний элемент
+                        }
+                    }
+
+                    //если стек не пустой...
+                    if (!stack.empty())
+                    {
+                        Node*peek; //создать объект класса Node
+                        peek = stack.pop(); //сохранить в него элемент вершины стека
+                        int key; //создать переменную для хранения значения ключа элемента контейнера
+                        key = peek->search_current_node(visit); //сохранить в нее значение ключа извлеченного элемента
+
+                        //если правая вершина элемента контейнера с данным ключом существует...
+                        if (visit.value(key)->right != nullptr)
+                        {
+                            return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack, variables, cost, sum_of_operation, stack1); //вызвать функцию для правой вершины извлеченного элемента
+                        }
+
+                        //иначе если значение ключа не равно 0...
+                        else if (visit.key(peek) != 0)
+                        {
+                            peek = stack.pop(); //извлечь элемент вершины стека
+                            key = peek->search_current_node(visit); //сохранить в переменную для хранения значения ключа элемента значение ключа извлеченного элемента
+                            return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack,variables, cost, sum_of_operation,stack1); //вызвать функцию для правой вершины извлеченного элемента
+                        }
+                    }
+                }
+
+                //если тип корня дерева еще не определен...
+                if (all_nodes.last()->type_of_node == nullptr)
+                {
+                     Node* peek = all_nodes[all_nodes.size() -1]; //запомнить его в объект класса Node
+                     sum_of_operation.prepend(peek->sum_of_current_operation(variables, cost)); //определить стоимость операции и сохранить в стек
+                }
+            }
         }
 
-        for (int i = 0; i < sum_of_operation.size(); i++)
+        return visit.last(); //вернуть последний элемент контейнера
+     }
+
+    //определение родителя текущего узла
+    Node* recognize_parent_of_node (QMap <int, Node*> &visit, Node* current_node)
+    {
+        QMap <int, Node*>::iterator iter; // итератор для контейнера, хранящего узлы дерева
+        Node* node; //объект класса Node
+
+        //для всех элементов контейнера и пока не дошли до конца контейнера...
+        for(iter = visit.begin(); iter != visit.end(); ++iter)
         {
-            sum+=sum_of_operation[i];
+            node = iter.value(); //сохранить в пееременной объекта класса Node текущий элемент контейнера
+
+            //если левая или правая вершина данного элемента равна текущему узлу...
+            if (iter.value()->right == current_node || iter.value()->left == current_node)
+            {
+                return iter.value(); //вернуть данный элемент контейнера
+            }
         }
-        return sum;
+
+        return nullptr; //если не найден родитель текущего узла, вернуть nullptr
     }
 
+    //определение типа константы
     QString recognize_number_type ()
     {
-        int whole_part;
-        int fractional_part;
+        int whole_part; //создать переменную, хранящую целую часть
+        int fractional_part = NULL; //создать переменную, хранящую дробную часть
         bool ok;
-        QStringList list = this->value.split(",");
-        whole_part = list[0].toInt(& ok, 10);
-        if (list.size() != 1)
+        QStringList parts_of_number; //создать объект класса QStringList
+
+        parts_of_number = this->value.split(","); //разделить текущую строку и сохранить в parts_of_number
+        whole_part = parts_of_number[0].toInt(& ok, 10); //сохранить первый элемент parts_of_number в целую часть
+
+        //если количество элементов в parts_of_number не равно 1...
+        if (parts_of_number.size() != 1)
         {
-            fractional_part = list[1].toInt(& ok, 10);
+            fractional_part = parts_of_number[1].toInt(& ok, 10); //сохранить второй элемент parts_of_number в дробную часть
         }
+
+        //если дробная часть отсутствует...
         if (fractional_part == NULL)
         {
-            return "int";
+            return "int"; //вернуть строку "int"
         }
+
+        //иначе если целая и дробная часть соответствует условию типа данных double
         else if ((whole_part-1 >  2147483646 && fractional_part > 0) || (whole_part+1 <  -2147483647 && fractional_part < 0))
         {
-           return "double";
+           return "double"; //вернуть строку "double"
         }
+
+        //иначе...
         else
-            return "float";
+            return "float"; // вернуть строку "float"
     }
 
-    QString recognize_node_type (QMap<QString, QString>& data)
+    //определение типа узла
+    QString recognize_node_type (QMap<QString, QString>& variables)
     {
-        QRegExp str("\\d*,?\\d*");
-        QString type_of_node;
-        QMap<QString, QString>::iterator iter;
+        QRegExp reg_const_character("\\d*,?\\d*"); //регулярное выражение для проверки константной переменной
+        QString type_of_node; //создать строку для хранения типа узла
+        QMap<QString, QString>::iterator iter; //создать итератор
 
+        //если текущий узел - оператор...
         if (is_operator(this->value))
         {
-            type_of_node = this->type_of_node;
+            type_of_node = this->type_of_node; //запомнить в строку, хранящую тип узла значения поля type_of_node
         }
+
+        //иначе...
         else
         {
-            if (str.exactMatch(this->value))
+            //если переменная соответствует регулярному выражению...
+            if (reg_const_character.exactMatch(this->value))
             {
-                type_of_node = this->recognize_number_type();
+                type_of_node = this->recognize_number_type(); //запомнить в строку, хранящую тип узла возвращаемое значение функции recognize_number_type
             }
+
+            //иначе...
             else
             {
-                 type_of_node = data.find(this->value).value();
+                 type_of_node = variables.find(this->value).value(); //запомнить в строку, хранящую тип узла соответствующее значение из контейнера с переменными
             }
         }
 
-        this->type_of_node = type_of_node;
-        return type_of_node;
+        this->type_of_node = type_of_node; //сохранить в поле type_of_node полученную строку с типом текущего узла
+        return type_of_node; //вернуть полученную строку с типом узла
     }
 
-    QString priority_recognition (QString type_of_left_node, QString type_of_right_node)
+    //определение приоритетного типа
+    QString priority_recognition (QString type_of_left_node, QString type_of_right_node, QMap<QString, QString>& cost, int& cost_of_conversion_type)
     {
-        QString priority_type;
+        QString priority_type; //создать строку, хранящую тип приоритетности
+        bool ok;
+
+        //если обе вершины имеют тип "int"...
         if (type_of_left_node == "int" && type_of_right_node == "int")
-            priority_type = "int";
+        {
+            priority_type = "int"; //запомнить в строке, хранящей  тип приоритетности "int"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
+        }
+
+        //иначе если одна из вершин имеет тип "int" и другая "float"...
         else if ((type_of_left_node == "int" && type_of_right_node == "float") || (type_of_left_node == "float" && type_of_right_node == "int"))
-            priority_type = "float";
+        {
+            priority_type = "float"; //запомнить в строке, хранящей  тип приоритетности "float"
+            cost_of_conversion_type = cost.find("intTOfloat").value().toInt(& ok, 10); //запомнить в стоимости конвертации значение из файла с весами
+        }
+
+        //иначе если обе вершины имеют тип "float"...
         else if (type_of_left_node == "float" && type_of_right_node == "float")
-            priority_type =  "float";
+        {
+            priority_type =  "float"; //запомнить в строке, хранящей  тип приоритетности "float"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
+        }
+
+        //иначе если одна из вершин имеет тип "float" и другая "double"...
+        else if ((type_of_left_node == "float" && type_of_right_node == "double") || (type_of_left_node == "double" && type_of_right_node == "float"))
+        {
+            priority_type =  "float"; //запомнить в строке, хранящей  тип приоритетности "float"
+            cost_of_conversion_type = cost.find("floatTOdouble").value().toInt(& ok, 10); //запомнить в стоимости конвертации значение из файла с весами
+        }
+
+        //иначе если одна из вершин имеет тип "float" и другая "double"...
+        else if ((type_of_left_node == "int" && type_of_right_node == "double") || (type_of_left_node == "double" && type_of_right_node == "int"))
+        {
+            priority_type =  "float"; //запомнить в строке, хранящей  тип приоритетности "float"
+            cost_of_conversion_type = cost.find("intTOdouble").value().toInt(& ok, 10); //запомнить в стоимости конвертации значение из файла с весами
+        }
+
+        //иначе если обе вершины имеют тип "double"...
         else if (type_of_left_node == "double" || type_of_right_node == "double")
-            priority_type =  "double";
+        {
+            priority_type =  "double"; //запомнить в строке, хранящей  тип приоритетности "double"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
+        }
+
+        //иначе если левая вершина имеет тип "int" и левая ""...
         else if (type_of_left_node == "int" && type_of_right_node == "")
         {
-            priority_type = "int";
+            priority_type = "int"; //запомнить в строке, хранящей  тип приоритетности "int"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
         }
+
+        //иначе если левая вершина имеет тип "float" и левая ""...
         else if (type_of_left_node == "float" && type_of_right_node == "")
         {
-            return "float";
+            priority_type = "float"; //запомнить в строке, хранящей  тип приоритетности "float"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
         }
+
+        //иначе если левая вершина имеет тип "double" и левая ""...
         else if (type_of_left_node == "double" && type_of_right_node == "")
         {
-            return  "double";
+            priority_type =  "double"; //запомнить в строке, хранящей  тип приоритетности "double"
+            cost_of_conversion_type = 0; //запомнить в стоимости конвертации значение нуля
         }
-        return priority_type;
+
+        return priority_type; //вернуть строку, хранящую тип приоритетности
     }
 
-int sum_of_current_operation(QMap<QString, QString>& variables, QMap<QString, QString>& cost)
-{
-    QString type_of_left_node;
-    QString type_of_right_node;
-    QString priority_type;
-    QString cost_of_node;
-    bool ok;
-    if (this->left != nullptr)
+    //стоимость текущей операции
+    int sum_of_current_operation(QMap<QString, QString>& variables, QMap<QString, QString>& cost)
     {
-        if (!is_operator(this->left->value))
-        {
-            type_of_left_node = this->left->recognize_node_type(variables);
-        }
-        else
-        {
-            type_of_left_node = this->left->type_of_node;
-        }
-    }
-    if (this->right != nullptr)
-    {
-        if (!is_operator(this->right->value))
-        {
-            type_of_right_node = this->right->recognize_node_type(variables);
-        }
-        else
-        {
-            type_of_right_node = this->right->type_of_node;
-        }
-    }
-    priority_type = priority_recognition(type_of_left_node, type_of_right_node);
-    this->type_of_node = priority_type;
-    cost_of_node = cost.find(priority_type+this->value).value();
-    return cost_of_node.toInt(& ok, 10);
-}
+        QString type_of_left_node; //создать строку, хранящей тип левой вершины
+        QString type_of_right_node; //создать строку, хранящей тип правой вершины
+        QString priority_type; //создать строку, хранящей приоритетный тип
+        QString cost_of_node; //создать строку, хранящей стоимость узла
+        int cost_of_conversion_type = 0; //создать переменную, хранящую стоимость конвертации типа
+        bool ok;
 
-
-
-   /* bool find (Node* part_of_tree,  QMap <int, Node*> distance_of_all_paths)
-    {
-        bool result = false;
-        Node* res;
-        QMap <int, Node*>:: iterator iter;
-        for (iter = distance_of_all_paths.begin(); iter != distance_of_all_paths.end(); ++iter)
+        //если существует левая вершина текущего узла...
+        if (this->left != nullptr)
         {
-            res = iter.value();
-            if (res == part_of_tree)
+            //если текущий узел не оператор...
+            if (!is_operator(this->left->value))
             {
-                return true;
+                type_of_left_node = this->left->recognize_node_type(variables); //вызываем функцию определения типа узла для левой вершины и запоминаем в type_of_left_node
+            }
+
+            //иначе
+            else
+            {
+                type_of_left_node = this->left->type_of_node; //сохраняем в type_of_left_node значение поля type_of_node левой вершины
             }
         }
 
-        return result;
-    }
-
-    //алгоритм поиска в глубину
-    void depth_first_search_of_one_way (int count_of_nodes, QMap <int, Node*>& distance_of_all_paths )
-    {
-        distance_of_all_paths.insert(count_of_nodes, this);
-
-        if (left != nullptr && is_operator (left->value) && !find(left, distance_of_all_paths))
+        //если существует правая вершина текущего узла...
+        if (this->right != nullptr)
         {
-            count_of_nodes++;
-            distance_of_all_paths.insert(count_of_nodes, left);
-            left->depth_first_search_of_one_way(count_of_nodes, distance_of_all_paths);
-
-            //sum_of_value_of_operations += left->depth_first_search();
-        }
-
-        else if (right != nullptr && is_operator (right->value) && !find(right, distance_of_all_paths))
-        {
-            count_of_nodes++;
-            distance_of_all_paths.insertMulti(count_of_nodes, right);
-            right->depth_first_search_of_one_way(count_of_nodes, distance_of_all_paths);
-
-            //sum_of_value_of_operations += right->depth_first_search();
-        }
-        else if (left != nullptr&& !find(left, distance_of_all_paths))
-        {
-            count_of_nodes++;
-            distance_of_all_paths.insertMulti(count_of_nodes, left);
-        }
-        else if (right != nullptr&& !find(right, distance_of_all_paths))
-        {
-            count_of_nodes++;
-            distance_of_all_paths.insertMulti(count_of_nodes, right);
-        }
-        //return sum_of_value_of_operations;
-    }
-
-    bool is_all_nodes_visited (QMap <int, Node*>& distance_of_all_paths)
-    {
-        bool is_visited = false;
-        QMap <int, Node*>:: iterator iter;
-        for (iter = distance_of_all_paths.begin(); iter != distance_of_all_paths.end(); ++iter)
-        {
-            is_visited = find(iter.value(), distance_of_all_paths);
-            if (!find(left, distance_of_all_paths) || !find(right, distance_of_all_paths))
+            //если текущий узел не оператор...
+            if (!is_operator(this->right->value))
             {
-                return false;
+                type_of_right_node = this->right->recognize_node_type(variables); //вызываем функцию определения типа узла для правой вершины и запоминаем в type_of_right_node
+            }
+
+            //иначе...
+            else
+            {
+                type_of_right_node = this->right->type_of_node; //сохраняем в type_of_right_node значение поля type_of_node правой вершины
             }
         }
-        return is_visited;
+
+        priority_type = priority_recognition(type_of_left_node, type_of_right_node, cost, cost_of_conversion_type); //определяем приоритетный тип
+        this->type_of_node = priority_type; //запоминаем в поле type_of_node текущего узла приоритетный тип
+        cost_of_node = cost.find(this->value).value(); // определяем стоимость операции
+        return cost_of_node.toInt(& ok, 10) + cost_of_conversion_type; //возвращаем стоимость
     }
-    Node *tree_depth_search (QMap <int, Node*>& distance_of_all_paths)
-    {
-
-        int count_of_nodes = 0;
-        QMap <int, Node*>::iterator iter;
-        QMap <int, Node*>::iterator copy_iter;
-        Node *previous_node;
-        Node *depth_of_the_tree;
-        bool is_tree_macked = false;
-
-        depth_first_search_of_one_way(count_of_nodes, distance_of_all_paths);
-        iter = distance_of_all_paths.end();
-        copy_iter = distance_of_all_paths.end();
-        --iter;
-        --copy_iter;
-        do
-        {
-
-            //copy_iter = distance_of_all_paths.begin();
-            //while (!is_operator(iter.value()->value))
-           // {
-                if (iter != distance_of_all_paths.end())
-                {
-                    --iter;
-                    if (iter.value()->left == copy_iter.value() || iter.value()->right == copy_iter.value())
-                    {
-                        previous_node = iter.value();
-                        int key = iter.key();
-                        previous_node->depth_first_search_of_one_way(key, distance_of_all_paths);
-                        copy_iter =iter;
-                    }
-                }
-
-          //  }
-
-          /*  iter = distance_of_all_paths.end();
-            //copy_iter = distance_of_all_paths.begin();
-            --iter;*/
-
-
-
-           /* is_tree_macked = is_all_nodes_visited(distance_of_all_paths);
-
-        }
-        while (!is_tree_macked);
-
-        depth_of_the_tree = distance_of_all_paths.last();
-
-        return depth_of_the_tree;
-    }*/
-
-
 
     //представление нотаций
     void preOrder(Node *part_of_tree)
@@ -599,12 +692,11 @@ int sum_of_current_operation(QMap<QString, QString>& variables, QMap<QString, QS
     }
 };
 
-//чтение из файла
-void read_file (QMap<QString, QString>& data, QString way)
+//чтение файла с выражением в обратной польской записи
+QString read_expression (QString way_to_input_file)
 {
-    QString str; //создаем объект класса QString для хранения строки из файла
-    QFile file (way); //создаем объект класса QFile
-    QStringList list; //объект класса QStringList для хранения подстрок текущей строки файла
+    QString content_of_line_file; //создаем объект класса QString для хранения строки из файла
+    QFile file (way_to_input_file); //создаем объект класса QFile
 
     //если возможно открыть файл для чтения...
     if (file.open(QIODevice::ReadOnly))
@@ -612,52 +704,148 @@ void read_file (QMap<QString, QString>& data, QString way)
         //до тех пор, пока не достигли конца файла...
         while(!file.atEnd())
         {
-            str=str+file.readLine(); //сохраняем в объект str текущую строку из файла
-            list = str.split( QRegExp("\\s+")); //разбиваем текущую строку файла на подстроки и сохраняем их в контейнере list
-            data.insert(list[0], list[1]); //добавляем в словарь полученные подстроки
-            str = ""; //очищаем объект str для хранения следующей строки
+            content_of_line_file=content_of_line_file+file.readLine(); //сохраняем в объект str текущую строку из файла
         }
+        file.close(); //закрываем файл
+    }
+    return content_of_line_file;
+}
+
+//чтение из файла с перемеменными и весами
+void read_file (QList <Error>& errors, QMap<QString, QString>& data, QString way_to_input_file, QString name_of_file)
+{
+    QString content_of_line_file; //создаем объект класса QString для хранения строки из файла
+    QFile file (way_to_input_file); //создаем объект класса QFile
+    QStringList expression_elements; //объект класса QStringList для хранения подстрок текущей строки файла
+    QRegExp reg_variable("[a-z]"); //регулярное выражение для проверки переменной
+    QRegExp reg_number("\\d+"); //регулярное выражение для проверки числа
+
+    //если возможно открыть файл для чтения...
+    if (file.open(QIODevice::ReadOnly))
+    {
+        //до тех пор, пока не достигли конца файла...
+        while(!file.atEnd())
+        {
+            content_of_line_file=content_of_line_file+file.readLine(); //сохраняем в объект content_of_line_file текущую строку из файла
+            expression_elements = content_of_line_file.split( QRegExp("\\s+")); //разбиваем текущую строку файла на подстроки и сохраняем их в контейнере list
+
+            //если первый элемент не соответствует переменной и второй элемент не строка "int" или "float" или "double" и текущий файл - файл с переменными...
+            if (!(reg_variable.exactMatch(expression_elements[0]) && (expression_elements[1] == "int" || expression_elements[1] == "float" || expression_elements[1] == "double")) && name_of_file == "variables")
+            {
+                Error error_in_variables_file (8, 0, "invalid file format with variables"); //создать объект класса Error и запомнить информацию о неверном формате файла с перемнными
+                errors.append(error_in_variables_file);
+            }
+
+            //иначе если первый элемент не соответствует оператору или строке "intTOfloat" или ""intTOdouble" или "floatTOdoble" и второй элемент не число и текущий файл - файл с весами...
+            else if (!((is_operator(expression_elements[0]) || expression_elements[0] == "intTOfloat" || expression_elements[0] == "intTOdouble" || expression_elements[0] == "floatTOdoble") && reg_number.exactMatch(expression_elements[1])) && name_of_file == "cost")
+            {
+                Error error_in_cost_file (9, 0, "invalid file format with cost"); //создать объект класса Error и запомнить информацию о неверном формате с весами
+                errors.append(error_in_cost_file);
+            }
+
+            //иначе...
+            else
+            {
+                data.insert(expression_elements[0], expression_elements[1]); //добавляем в словарь полученные подстроки
+                content_of_line_file = ""; //очищаем объект content_of_line_file для хранения следующей строки
+            }
+        }
+
         file.close(); //закрываем файл
     }
 }
 
+//запись результата в файл
+void write_file (QList <Error>& errors, QString way_to_output_file, int sum)
+{
+    QFile file (way_to_output_file); //создаем объект класса QFile
+
+    //если файл открыт для записи...
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QTextStream out(&file); //создаем объект класса QTextStream
+
+        //если контейнер с ошибками не пуст...
+        if (!errors.empty())
+        {
+            QString error_info; //создаем строку для хранения информации об ошибке
+
+            for(int i = 0; i < errors.size(); i++)
+            {
+                Error error = errors[i]; //запоминаем в объкте класса Error текущий элемент контейнера с ошибками
+                //запоминаем содерщимое объекта в строку
+                error_info = "code of error: "+QString::number(error.get_code_error_code())+"\ncolumn of error: "+QString::number(error.get_line_of_error())+"\ninformation of error: "+error.get_information_of_error();
+                out << error_info << endl; //выгружаем в файл строку
+            }
+        }
+
+        //иначе...
+        else
+        {
+            QString result; //создаем строку для хранения результата подсчета
+            result = "result is "+QString::number(sum); //сохраняем в нее результат
+            out << result << endl; //выгружаем в файл
+        }
+
+        file.close(); //закрываем файл
+    }
+}
 
 int main(int argc, char *argv[])
 {
-        QStack <Node*> stack;
-        QMap <int, Node*> distance_of_all_paths;
-        QMap <int, Node*> all_nodes;
-        QMap <int, Node*> visit;
-        QMap <int, Node*> visit1;
-        QStack <Node*> stack1;
-        QStack <Node*> stack2;
-        QMap <QString, QString> variables;
-        QMap <QString, QString> cost;
-        int count  = -1;
-        int sum = 0;
-        //Создаем дерево
-        //Node tree (*tree.expression_tree_from_postfix("2 2 / +", stack, all_nodes));
+    /*QString way_to_expression = argv[1]; //путь к файлу с выражением
+    QString way_to_variables_file = argv[2]; //путь к файлу с перемнными
+    QString way_to_cost_file = argv[3]; //путь к файлу с весами операций
+    QString way_to_result_file = argv[4]; // путь к выходному файлу*/
 
-        //QList <Error> errors;
-      //  QMap <int, Node*> distance_of_all_paths;
-        //int count_of_nodes = 0;
-        read_file(variables, "C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/variables.txt");
-        read_file(cost, "C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/cost.txt");
-        //Создаем дерево
-        Node tree (*tree.expression_tree_from_postfix("a +? b + 2 /", stack, all_nodes));
-        Node depth_of_the_tree(*tree.depth_first_search(all_nodes, visit, count, stack1));
-        sum = depth_of_the_tree.sum_of_operations(visit, variables, cost);
-        //tree.depth_first_search(count_of_nodes ,distance_of_all_paths);
-       // depth_of_the_tree = tree.tree_depth_search(distance_of_all_paths);
+    QStack <Node*> stack; //стек для функции expression_tree_from_postfix
+    QMap <int, Node*> distance_of_all_paths; //карта для хранения расстояния от вершины дерева до каждого узла
+    QMap <int, Node*> all_nodes; //карта для хранения всех узлов дерева
+    QMap <int, Node*> visit; //карта для посещенных узлов
+    QList <Error> errors; //QList для хранения объектов класса Error
+    QStack <Node*> stack1; //стек для функции depth_of_the_tree
+    QStack <Node*> stack2; //стек для уже посещенных узлов функции depth_of_the_tree
+    QMap <QString, QString> variables; //карта для хранения информации о переменных
+    QMap <QString, QString> cost;  //карта для хранения информации о весах операций
+    QVector <int> sum_operation; //вектор для хранения веса каждой операции
+    int count  = -1; //счетчик растояний от вершины дерева функции depth_of_the_tree, значение равно -1
+    int sum = 0; //сумма всех операций, значение равно 0
+    //"C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/variables.txt"
 
-        //Traversal Operation on expression tree
-        cout << "\nIn-Order Traversal :   ";
-        tree.inOrder(stack[0]);
+    //считываем файл с переменными
+    read_file(errors, variables, "C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/variables.txt", "variables");
+    //считаем файл с весами
+    read_file(errors, cost, "C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/cost.txt", "cost");
 
-        cout << "\nPre-Order Traversal :  ";
-        tree.preOrder(stack[0]);
+    //Создаем дерево
+    Node tree (*tree.expression_tree_from_postfix(read_expression("C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/expression.txt"), stack, all_nodes, errors, variables, cost));
 
-        cout << "\nPost-Order Traversal : ";
-        tree.postOrder(stack[0]);
-        return 0;
+    //если стек для функции expression_tree_from_postfix не равен 1
+    if (stack.size() != 1)
+    {
+        Error few_oparators (7, stack.size(), "inappropriate number of operators"); //создать объект класса Error и запомнить информацию о нехватке операторов
+        errors.append(few_oparators); //добавить ошибку в контейнер
+    }
+
+    //иначе...
+    else
+    {
+        //если контейнер с ошибками пустой...
+        if (errors.empty())
+        {
+            //вызвать функцию обхода в глубину
+            Node depth_of_the_tree(*tree.depth_first_search(all_nodes, visit, count, stack1, variables, cost, sum_operation, stack2));
+
+            //для каждого элемента вектора и пока не дошли до конца...
+            for (int i = 0; i < sum_operation.size(); i++)
+            {
+                sum+=sum_operation[i]; //увеличивываем сумму всех операций, прибавляя текущее значение вектора
+            }
+        }
+    }
+
+    //записываем рузультаты в выходной файл
+    write_file(errors, "C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/result.txt", sum);
+
+    return 0;
 }
