@@ -103,9 +103,10 @@ public:
     }
 
     //проверка на количество операторов выражении
-    void validation_of_quantity(QList <Error>& errors, QStringList& list)
+    bool validation_of_quantity(QList <Error>& errors, QStringList& list)
     {
         int count_of_operation = 0; //создать счетчик для подсчета количества операторов и обнулить его
+        bool find_error = false; //признак того, что была найдена ошибка
 
         //пока не дошли до конца выражения...
         for (int i = 0; i < list.size(); i++)
@@ -122,6 +123,7 @@ public:
         {
             Error few_operations (0, count_of_operation, "too few operations"); //создать объект класса Error и запомнить информацию о малом количестве операторов
             errors.append(few_operations); //добавить ошибку в контейнер
+            find_error = true; //запомнить появления ошибки
         }
 
         //иначе если счетчик больше 10...
@@ -129,7 +131,10 @@ public:
         {
             Error many_operations (1, count_of_operation, "too many operations"); //создать объект класса Error запомнить информацию о превыщающем количестве операторов
             errors.append(many_operations); //добавить ошибку в контейнер
+            find_error = true; //запомнить появления ошибки
         }
+
+        return  find_error; //вернуть признак появления ошибки
     }
 
     //проверка на содержание в строке знака операции
@@ -194,7 +199,7 @@ public:
     void is_valid_character (QList <Error>& errors, QStringList& list, QMap<QString, QString>& variables, QMap<QString, QString>& cost)
     {
         QRegExp reg_const_character ("\\d*,?\\d*"); //регулярное выражение для проверки константной переменной
-        QRegExp reg_sequence_of_variables ("[a-z]+"); //регулярное выражение для проверки последовательности переменных
+        QRegExp reg_sequence_of_variables ("[a-z][a-z]+"); //регулярное выражение для проверки последовательности переменных
         QRegExp reg_variable("[a-z]"); //регулярное выражение для проверки переменной
 
         //для всех элементов строки и пока не дошли до конца...
@@ -209,25 +214,25 @@ public:
             //иначе если текущий элемент не оператор и не содержится в контейнере с переменными и не соответствует констатной переменной и соответсвует последовательности переменных...
             else if (!is_operator(list[i]) && !is_in_the_container(list[i], variables) && !reg_const_character.exactMatch(list[i]) && reg_sequence_of_variables.exactMatch(list[i]))
             {
-                Error missing_space (3, i, "missing space between arguments"); //создать объект класса Error и запомнить информацию о пропуске пробела
+                Error missing_space (2, i, "missing space between arguments"); //создать объект класса Error и запомнить информацию о пропуске пробела
                 errors.append(missing_space); //добавить ошибку в контейнер
             }
             //иначе если текущий элемент не оператор и не содержится в контейнере с переменными  и не соответствует констатной переменной и не соответсвует последовательности переменных...
             else if (!is_operator(list[i]) && !is_in_the_container(list[i], variables) && !reg_const_character.exactMatch(list[i]) && !reg_sequence_of_variables.exactMatch(list[i]))
             {
-                Error invalid_characters (4, i, "invalid characters in expression"); //создать объект класса Error и запомнить информацию о недопустимом символе
+                Error invalid_characters (3, i, "invalid characters in expression"); //создать объект класса Error и запомнить информацию о недопустимом символе
                 errors.append(invalid_characters); //добавить ошибку в контейнер
             }
             //иначе если текущий элемент не оператор и соответствует переменной и не содержится в контейнере с переменными...
             else if (!is_operator(list[i]) && reg_variable.exactMatch(list[i]) && !is_in_the_container(list[i], variables))
             {
-                Error no_operand_information (5, i, "no information about variable"); //создать объект класса Error и запомнить информацию об отсутствие информации о перемнной
+                Error no_operand_information (4, i, "no information about variable"); //создать объект класса Error и запомнить информацию об отсутствие информации о перемнной
                 errors.append(no_operand_information); //добавить ошибку в контейнер
             }
             //иначе если текущий элемент оператор и не содержится в контейнере с весами...
             else if (is_operator(list[i]) && !is_in_the_container(list[i], cost))
             {
-                Error no_operator_information (6, i, "no information about operator"); //создать объект класса Error и запомнить информацию об отсутствие информации о операции
+                Error no_operator_information (5, i, "no information about operator"); //создать объект класса Error и запомнить информацию об отсутствие информации о операции
                 errors.append(no_operator_information); //добавить ошибку в контейнер
             }
         }
@@ -289,9 +294,20 @@ public:
                     else
                     {
                         right_branch = stack.pop(); //выгрузить из стека текущий элемент и запомнить в переменную right_branch
-                        left_branch = stack.pop(); //выгрузить из стека следующий за текущий элемент в переменную left_branch
-                        part_of_tree = new Node (current_substr_expression, right_branch, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
+                        if (stack.empty())
+                        {
+                            Error missin_number_of_operands (6, i, "missing number of operands to perform the operation"); //создать объект класса Error и
+                                                                                            //запомнить информацию об несоответствующем количестве операторов
+                            errors.append(missin_number_of_operands); //добавить ошибку в контейнер
+
+                        }
+                        else
+                        {
+                            left_branch = stack.pop(); //выгрузить из стека следующий за текущий элемент в переменную left_branch
+                            part_of_tree = new Node (current_substr_expression, right_branch, left_branch, nullptr); //инициализируем объект при помощи конструктора с параметрами
+                        }
                     }
+
 
                     stack.push(part_of_tree); //добавить текущий элемент в стек
                     all_nodes.insert(i-1, part_of_tree); //добавить текущий элемент в контейнер с узлами дерева
@@ -305,11 +321,11 @@ public:
 
                 index_of_current_substr++; //инкрементировать значение индекса текущей подстроки
             }
-            peek = stack[0]; //вернуть элемент начала стека
+            peek = stack[0]; //запомнить элемент начала стека
         }
 
         //иначе...
-        else
+        if (!errors.empty())
         {
             peek = new Node (); //запомнить в переменной для хранения верхнего элемента стека пустой узел
         }
@@ -430,23 +446,29 @@ public:
                             return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack, variables, cost, sum_of_operation, stack1); //вызвать функцию для правой вершины извлеченного элемента
                         }
 
+
                         //иначе если значение ключа не равно 0...
                         else if (visit.key(peek) != 0)
                         {
-                            peek = stack.pop(); //извлечь элемент вершины стека
-                            key = peek->search_current_node(visit); //сохранить в переменную для хранения значения ключа элемента значение ключа извлеченного элемента
-                            return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack,variables, cost, sum_of_operation,stack1); //вызвать функцию для правой вершины извлеченного элемента
+                            if (!stack.empty())
+                            {
+                                peek = stack.pop(); //извлечь элемент вершины стека
+                                key = peek->search_current_node(visit); //сохранить в переменную для хранения значения ключа элемента значение ключа извлеченного элемента
+                                return visit.value(key)->right->depth_first_search(all_nodes, visit, key, stack,variables, cost, sum_of_operation,stack1); //вызвать функцию для правой вершины извлеченного элемента
+                            }
+
                         }
                     }
                 }
 
-                //если тип корня дерева еще не определен...
-                if (all_nodes.last()->type_of_node == nullptr)
-                {
-                     Node* peek = all_nodes[all_nodes.size() -1]; //запомнить его в объект класса Node
-                     sum_of_operation.prepend(peek->sum_of_current_operation(variables, cost)); //определить стоимость операции и сохранить в стек
-                }
+
             }
+        }
+        //если тип корня дерева еще не определен...
+        if (all_nodes.last()->type_of_node == nullptr)
+        {
+             Node* peek = all_nodes[all_nodes.size() -1]; //запомнить его в объект класса Node
+             sum_of_operation.prepend(peek->sum_of_current_operation(variables, cost)); //определить стоимость операции и сохранить в стек
         }
 
         return visit.last(); //вернуть последний элемент контейнера
@@ -732,14 +754,14 @@ void read_file (QList <Error>& errors, QMap<QString, QString>& data, QString way
             //если первый элемент не соответствует переменной и второй элемент не строка "int" или "float" или "double" и текущий файл - файл с переменными...
             if (!(reg_variable.exactMatch(expression_elements[0]) && (expression_elements[1] == "int" || expression_elements[1] == "float" || expression_elements[1] == "double")) && name_of_file == "variables")
             {
-                Error error_in_variables_file (8, 0, "invalid file format with variables"); //создать объект класса Error и запомнить информацию о неверном формате файла с перемнными
+                Error error_in_variables_file (7, 0, "invalid file format with variables"); //создать объект класса Error и запомнить информацию о неверном формате файла с перемнными
                 errors.append(error_in_variables_file);
             }
 
             //иначе если первый элемент не соответствует оператору или строке "intTOfloat" или ""intTOdouble" или "floatTOdoble" и второй элемент не число и текущий файл - файл с весами...
             else if (!((is_operator(expression_elements[0]) || expression_elements[0] == "intTOfloat" || expression_elements[0] == "intTOdouble" || expression_elements[0] == "floatTOdoble") && reg_number.exactMatch(expression_elements[1])) && name_of_file == "cost")
             {
-                Error error_in_cost_file (9, 0, "invalid file format with cost"); //создать объект класса Error и запомнить информацию о неверном формате с весами
+                Error error_in_cost_file (8, 0, "invalid file format with cost"); //создать объект класса Error и запомнить информацию о неверном формате с весами
                 errors.append(error_in_cost_file);
             }
 
@@ -821,9 +843,9 @@ int main(int argc, char *argv[])
     Node tree (*tree.expression_tree_from_postfix(read_expression("C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/expression.txt"), stack, all_nodes, errors, variables, cost));
 
     //если стек для функции expression_tree_from_postfix не равен 1
-    if (stack.size() != 1)
+    if (stack.size() != 1 && errors.empty())
     {
-        Error few_oparators (7, stack.size(), "inappropriate number of operators"); //создать объект класса Error и запомнить информацию о нехватке операторов
+        Error few_oparators (9, stack.size(), "inappropriate number of operators"); //создать объект класса Error и запомнить информацию о нехватке операторов
         errors.append(few_oparators); //добавить ошибку в контейнер
     }
 
