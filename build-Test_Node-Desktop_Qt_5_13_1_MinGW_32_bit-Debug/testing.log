@@ -1,0 +1,10 @@
+********* Start testing of Test_Node *********
+Config: Using QtTest library 5.13.1, Qt 5.13.1 (i386-little_endian-ilp32 shared (dynamic) debug build; by GCC 7.3.0)
+PASS   : Test_Node::initTestCase()
+PASS   : Test_Node::expression_tree_from_postfix()
+PASS   : Test_Node::depth_first_search()
+PASS   : Test_Node::sum_of_current_operation()
+PASS   : Test_Node::recognize_node_type()
+PASS   : Test_Node::cleanupTestCase()
+Totals: 6 passed, 0 failed, 0 skipped, 0 blacklisted, 3ms
+********* Finished testing of Test_Node *********

@@ -226,6 +226,7 @@ Makefile: ../operations_calc/operations_calc.pro C:/Qt/5.13.1/mingw73_64/mkspecs
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/qt_config.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/win32-g++/qmake.conf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/exclusive_builds.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/toolchain.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/default_pre.prf \
@@ -233,7 +234,6 @@ Makefile: ../operations_calc/operations_calc.pro C:/Qt/5.13.1/mingw73_64/mkspecs
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/resolve_config.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/exclusive_builds_post.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/default_post.prf \
-		C:/Qt/5.13.1/mingw73_64/mkspecs/features/win32/console.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/qml_debug.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/precompile_header.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/warn_on.prf \
@@ -242,12 +242,14 @@ Makefile: ../operations_calc/operations_calc.pro C:/Qt/5.13.1/mingw73_64/mkspecs
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/moc.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/qmake_use.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/file_copies.prf \
+		C:/Qt/5.13.1/mingw73_64/mkspecs/features/win32/windows.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/testcase_targets.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/exceptions.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/yacc.prf \
 		C:/Qt/5.13.1/mingw73_64/mkspecs/features/lex.prf \
 		../operations_calc/operations_calc.pro \
-		C:/Qt/5.13.1/mingw73_64/lib/Qt5Core.prl
+		C:/Qt/5.13.1/mingw73_64/lib/Qt5Core.prl \
+		C:/Qt/5.13.1/mingw73_64/lib/qtmain.prl
 	$(QMAKE) -o Makefile ..\operations_calc\operations_calc.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/spec_pre.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/qdevice.pri:
@@ -412,6 +414,7 @@ C:/Qt/5.13.1/mingw73_64/mkspecs/features/qt_functions.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/qt_config.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/win32-g++/qmake.conf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/exclusive_builds.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/toolchain.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/default_pre.prf:
@@ -419,7 +422,6 @@ C:/Qt/5.13.1/mingw73_64/mkspecs/features/win32/default_pre.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/resolve_config.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/exclusive_builds_post.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/default_post.prf:
-C:/Qt/5.13.1/mingw73_64/mkspecs/features/win32/console.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/qml_debug.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/precompile_header.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/warn_on.prf:
@@ -428,12 +430,14 @@ C:/Qt/5.13.1/mingw73_64/mkspecs/features/resources.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/moc.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/qmake_use.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/file_copies.prf:
+C:/Qt/5.13.1/mingw73_64/mkspecs/features/win32/windows.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/testcase_targets.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/exceptions.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/yacc.prf:
 C:/Qt/5.13.1/mingw73_64/mkspecs/features/lex.prf:
 ../operations_calc/operations_calc.pro:
 C:/Qt/5.13.1/mingw73_64/lib/Qt5Core.prl:
+C:/Qt/5.13.1/mingw73_64/lib/qtmain.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\operations_calc\operations_calc.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 
