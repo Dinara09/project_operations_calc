@@ -1,26 +1,5 @@
 #include "node.h"
 
-void fill_variables(QMap<QString, QString>& variables)
-{
-    variables.insert("a", "int");
-    variables.insert("b", "float");
-    variables.insert("c", "int");
-    variables.insert("x", "double");
-    variables.insert("y", "int");
-}
-void fill_cost (QMap<QString, QString>& cost)
-{
-    cost.insert("+", "1");
-    cost.insert("-", "2");
-    cost.insert("+?", "3");
-    cost.insert("-?", "4");
-    cost.insert("*", "5");
-    cost.insert("/", "6");
-    cost.insert("intTOfloat", "1");
-    cost.insert("intTOdouble", "2");
-    cost.insert("floatTOdoble", "3");
-}
-
 //получение данных о поле code_of_error
 QString Node::get_value ()
 {
@@ -666,5 +645,4 @@ Node* Node :: depth_first_search(QMap <int, Node*>& all_nodes, QMap <int, Node*>
 
     return visit.last(); //вернуть последний элемент контейнера
  }
-
 

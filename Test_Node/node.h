@@ -14,6 +14,15 @@ class Node
 
 public:
 
+    //конструктор по-умолчанию
+    Node ();
+
+    //конструктор с параметрами
+    Node (QString value, Node  *right, Node  *left, QString type_of_node);
+
+    //конструктор только с одним параметром
+    Node (QString value);
+
     //получение данных о поле code_of_error
     QString get_value ();
 
@@ -45,15 +54,8 @@ public:
     QString priority_recognition (QString type_of_left_node, QString type_of_right_node, QMap<QString, QString>& cost, int& cost_of_conversion_type);
 
     int  sum_of_current_operation(QMap<QString, QString>& variables, QMap<QString, QString>& cost);
-
-    //конструктор по-умолчанию
-    Node ();
-
-    //конструктор с параметрами
-    Node (QString value, Node  *right, Node  *left, QString type_of_node);
-
-    //конструктор только с одним параметром
-    Node (QString value);
 };
+
+
 
 #endif // NODE_H

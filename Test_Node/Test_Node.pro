@@ -19,7 +19,10 @@ SOURCES += \
         error.cpp \
         main.cpp \
         node.cpp \
-        test_node.cpp
+        test_depth_first_search.cpp \
+        test_expression_tree_from_postfix.cpp \
+        test_recognize_node_type.cpp \
+        test_sum_of_current_operation.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,4 +32,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     error.h \
     node.h \
-    test_node.h
+    test_depth_first_search.h \
+    test_expression_tree_from_postfix.h \
+    test_recognize_node_type.h \
+    test_sum_of_current_operation.h
