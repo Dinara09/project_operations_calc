@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.18"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Operations Calc: Исходный файл node.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">Operations Calc
+   </div>
+   <div id="projectbrief">Программа подсчета числа «минимальных» операций при вычислении выражения или выполнении оператора</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.8.18 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(function() {
+  initMenu('',true,false,'search.php','Поиск');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="headertitle">
+<div class="title">node.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="node_8h.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef NODE_H</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define NODE_H</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;QString&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;QStringList&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;QMap&gt;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;QStack&gt;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="error_8h.html">error.h</a>&quot;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">//класс, содержащий данные об одном узле дерева</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="class_node.html">   20</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="class_node.html">Node</a></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;{</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    QString value; <span class="comment">//узел</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="class_node.html">Node</a>* right; <span class="comment">//правая вершина данного узла</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <a class="code" href="class_node.html">Node</a>* left; <span class="comment">//левая вершина данного узла</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    QString type_of_node; <span class="comment">//тип узла</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="comment">//конструктор по-умолчанию</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html#ad7a34779cad45d997bfd6d3d8043c75f">Node</a> ();</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="comment">//конструктор с параметрами</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html#ad7a34779cad45d997bfd6d3d8043c75f">Node</a> (QString value, <a class="code" href="class_node.html">Node</a>  *right, <a class="code" href="class_node.html">Node</a>  *left, QString type_of_node);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="comment">//конструктор только с одним параметром</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html#ad7a34779cad45d997bfd6d3d8043c75f">Node</a> (QString value);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="comment">//проверка того, что подстрока является оператором</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="class_node.html#a6de4e639cf88b1f06ec60d0485888201">is_operator</a> (QString substr_of_expression);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="comment">//проверка на количество операторов выражении</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="class_node.html#a15b93fb757e63025cb56421008f868b8">validation_of_quantity</a>(QList &lt;Error&gt;&amp; errors, QStringList&amp; list);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="comment">//проверка на содержание в строке знака операции</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="class_node.html#a625cbff571299d3f0173f9d658b916da">is_contains_operation</a> (QString str);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="comment">//проверка на содержание переменной в контейнере</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span>    <span class="keywordtype">bool</span> <a class="code" href="class_node.html#a6b73eaed001ff209d2c92d217c45ee12">is_in_the_container</a> (QString character, QMap&lt;QString, QString&gt;&amp; data);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="comment">//проверка на валидность содержимого выражения</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span>    <span class="keywordtype">void</span> <a class="code" href="class_node.html#a2b24d208c6e898b347420bd6db52a0f0">is_valid_character</a> (QList &lt;Error&gt;&amp; errors, QStringList&amp; list, QMap&lt;QString, QString&gt;&amp; variables, QMap&lt;QString, QString&gt;&amp; cost);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="comment">//построение дерева из обратной польской записи</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html">Node</a> *<a class="code" href="class_node.html#aa01d8ff2c83498b2abbb323bd197f96b">expression_tree_from_postfix</a>(QString postfix_notation, QStack&lt;Node*&gt;&amp; stack, QMap &lt;int, Node*&gt;&amp; all_nodes, QList &lt;Error&gt;&amp; errors, QMap&lt;QString, QString&gt;&amp; variables, QMap&lt;QString, QString&gt;&amp; cost );</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="comment">//поиск текущего узла дерева в контейнере, хранящем узлы дерева</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment"></span>    <span class="keywordtype">int</span> <a class="code" href="class_node.html#ac1eeb63761e7c4971cc2e52d56f06d70">search_current_node</a> (QMap &lt;int, Node*&gt; &amp;visit);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="comment">//поиск глубины дерева</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html">Node</a>* <a class="code" href="class_node.html#aebcd815af81b07d702bd75092731a72b">depth_first_search</a>(QMap &lt;int, Node*&gt;&amp; all_nodes, QMap &lt;int, Node*&gt; &amp;visit, <span class="keywordtype">int</span> &amp;count, QStack &lt;Node*&gt;&amp; stack, QMap&lt;QString, QString&gt;&amp; variables, QMap&lt;QString, QString&gt;&amp; cost, QVector &lt;int&gt;&amp; sum_of_operation, QStack &lt;Node*&gt;&amp; tmp);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="comment">//определение родителя текущего узла</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment"></span>    <a class="code" href="class_node.html">Node</a>* <a class="code" href="class_node.html#a199d82856e906ecec096147843c56e6c">recognize_parent_of_node</a> (QMap &lt;int, Node*&gt; &amp;visit, <a class="code" href="class_node.html">Node</a>* current_node);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160; </div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="comment">//определение типа константы</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment"></span>    QString <a class="code" href="class_node.html#a0c926eb5031aedbd096d94dc61557052">recognize_number_type</a> ();</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160; </div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="comment">//определение типа узла</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment"></span>    QString <a class="code" href="class_node.html#a0e9abdbbda12b10eea1e7db692e1cb1e">recognize_node_type</a> (QMap&lt;QString, QString&gt;&amp; variables);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160; </div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="comment">//определение приоритетного типа</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="comment"></span>    QString <a class="code" href="class_node.html#aecea7aadfbac9e2845e6e3bcc3912642">priority_recognition</a> (QString type_of_left_node, QString type_of_right_node, QMap&lt;QString, QString&gt;&amp; cost, <span class="keywordtype">int</span>&amp; cost_of_conversion_type);</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160; </div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <span class="comment">//стоимость текущей операции</span></div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="comment"></span>    <span class="keywordtype">int</span> <a class="code" href="class_node.html#a612397431b1140cf7ced144a55f61b70">sum_of_current_operation</a>(QMap&lt;QString, QString&gt;&amp; variables, QMap&lt;QString, QString&gt;&amp; cost);</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;};</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="preprocessor">#endif // NODE_H</span></div>
+</div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aclass_node_html_aebcd815af81b07d702bd75092731a72b"><div class="ttname"><a href="class_node.html#aebcd815af81b07d702bd75092731a72b">Node::depth_first_search</a></div><div class="ttdeci">Node * depth_first_search(QMap&lt; int, Node * &gt; &amp;all_nodes, QMap&lt; int, Node * &gt; &amp;visit, int &amp;count, QStack&lt; Node * &gt; &amp;stack, QMap&lt; QString, QString &gt; &amp;variables, QMap&lt; QString, QString &gt; &amp;cost, QVector&lt; int &gt; &amp;sum_of_operation, QStack&lt; Node * &gt; &amp;tmp)</div><div class="ttdoc">Поиск глубины дерева</div><div class="ttdef"><b>Definition:</b> node.cpp:292</div></div>
+<div class="ttc" id="aclass_node_html_ad7a34779cad45d997bfd6d3d8043c75f"><div class="ttname"><a href="class_node.html#ad7a34779cad45d997bfd6d3d8043c75f">Node::Node</a></div><div class="ttdeci">Node()</div><div class="ttdoc">Конструктор без параметров</div><div class="ttdef"><b>Definition:</b> node.cpp:4</div></div>
+<div class="ttc" id="aclass_node_html_a612397431b1140cf7ced144a55f61b70"><div class="ttname"><a href="class_node.html#a612397431b1140cf7ced144a55f61b70">Node::sum_of_current_operation</a></div><div class="ttdeci">int sum_of_current_operation(QMap&lt; QString, QString &gt; &amp;variables, QMap&lt; QString, QString &gt; &amp;cost)</div><div class="ttdoc">Стоимость текущей операции</div><div class="ttdef"><b>Definition:</b> node.cpp:576</div></div>
+<div class="ttc" id="aclass_node_html_a2b24d208c6e898b347420bd6db52a0f0"><div class="ttname"><a href="class_node.html#a2b24d208c6e898b347420bd6db52a0f0">Node::is_valid_character</a></div><div class="ttdeci">void is_valid_character(QList&lt; Error &gt; &amp;errors, QStringList &amp;list, QMap&lt; QString, QString &gt; &amp;variables, QMap&lt; QString, QString &gt; &amp;cost)</div><div class="ttdoc">Проверка на валидность содержимого выражения</div><div class="ttdef"><b>Definition:</b> node.cpp:137</div></div>
+<div class="ttc" id="aclass_node_html_a0e9abdbbda12b10eea1e7db692e1cb1e"><div class="ttname"><a href="class_node.html#a0e9abdbbda12b10eea1e7db692e1cb1e">Node::recognize_node_type</a></div><div class="ttdeci">QString recognize_node_type(QMap&lt; QString, QString &gt; &amp;variables)</div><div class="ttdoc">Определение типа узла</div><div class="ttdef"><b>Definition:</b> node.cpp:471</div></div>
+<div class="ttc" id="aclass_node_html_ac1eeb63761e7c4971cc2e52d56f06d70"><div class="ttname"><a href="class_node.html#ac1eeb63761e7c4971cc2e52d56f06d70">Node::search_current_node</a></div><div class="ttdeci">int search_current_node(QMap&lt; int, Node * &gt; &amp;visit)</div><div class="ttdoc">Поиск текущего узла дерева в контейнере, хранящем узлы дерева</div><div class="ttdef"><b>Definition:</b> node.cpp:275</div></div>
+<div class="ttc" id="aclass_node_html_a6de4e639cf88b1f06ec60d0485888201"><div class="ttname"><a href="class_node.html#a6de4e639cf88b1f06ec60d0485888201">Node::is_operator</a></div><div class="ttdeci">bool is_operator(QString substr_of_expression)</div><div class="ttdoc">Проверка того, что подстрока является оператором</div><div class="ttdef"><b>Definition:</b> node.cpp:31</div></div>
+<div class="ttc" id="aclass_node_html"><div class="ttname"><a href="class_node.html">Node</a></div><div class="ttdoc">Класс, содержащий данные об узле дерева.</div><div class="ttdef"><b>Definition:</b> node.h:21</div></div>
+<div class="ttc" id="aclass_node_html_a15b93fb757e63025cb56421008f868b8"><div class="ttname"><a href="class_node.html#a15b93fb757e63025cb56421008f868b8">Node::validation_of_quantity</a></div><div class="ttdeci">bool validation_of_quantity(QList&lt; Error &gt; &amp;errors, QStringList &amp;list)</div><div class="ttdoc">Проверка на количество операторов выражении</div><div class="ttdef"><b>Definition:</b> node.cpp:44</div></div>
+<div class="ttc" id="aerror_8h_html"><div class="ttname"><a href="error_8h.html">error.h</a></div><div class="ttdoc">Заголовочный файл для описания класса error.</div></div>
+<div class="ttc" id="aclass_node_html_a625cbff571299d3f0173f9d658b916da"><div class="ttname"><a href="class_node.html#a625cbff571299d3f0173f9d658b916da">Node::is_contains_operation</a></div><div class="ttdeci">bool is_contains_operation(QString str)</div><div class="ttdoc">Проверка на содержание в строке знака операции</div><div class="ttdef"><b>Definition:</b> node.cpp:79</div></div>
+<div class="ttc" id="aclass_node_html_a0c926eb5031aedbd096d94dc61557052"><div class="ttname"><a href="class_node.html#a0c926eb5031aedbd096d94dc61557052">Node::recognize_number_type</a></div><div class="ttdeci">QString recognize_number_type()</div><div class="ttdoc">Определение типа константы</div><div class="ttdef"><b>Definition:</b> node.cpp:437</div></div>
+<div class="ttc" id="aclass_node_html_a6b73eaed001ff209d2c92d217c45ee12"><div class="ttname"><a href="class_node.html#a6b73eaed001ff209d2c92d217c45ee12">Node::is_in_the_container</a></div><div class="ttdeci">bool is_in_the_container(QString character, QMap&lt; QString, QString &gt; &amp;data)</div><div class="ttdoc">Проверка на содержание переменной в контейнер</div><div class="ttdef"><b>Definition:</b> node.cpp:118</div></div>
+<div class="ttc" id="aclass_node_html_aecea7aadfbac9e2845e6e3bcc3912642"><div class="ttname"><a href="class_node.html#aecea7aadfbac9e2845e6e3bcc3912642">Node::priority_recognition</a></div><div class="ttdeci">QString priority_recognition(QString type_of_left_node, QString type_of_right_node, QMap&lt; QString, QString &gt; &amp;cost, int &amp;cost_of_conversion_type)</div><div class="ttdoc">Определение приоритетного типа</div><div class="ttdef"><b>Definition:</b> node.cpp:504</div></div>
+<div class="ttc" id="aclass_node_html_a199d82856e906ecec096147843c56e6c"><div class="ttname"><a href="class_node.html#a199d82856e906ecec096147843c56e6c">Node::recognize_parent_of_node</a></div><div class="ttdeci">Node * recognize_parent_of_node(QMap&lt; int, Node * &gt; &amp;visit, Node *current_node)</div><div class="ttdoc">Определение родителя текущего узла</div><div class="ttdef"><b>Definition:</b> node.cpp:416</div></div>
+<div class="ttc" id="aclass_node_html_aa01d8ff2c83498b2abbb323bd197f96b"><div class="ttname"><a href="class_node.html#aa01d8ff2c83498b2abbb323bd197f96b">Node::expression_tree_from_postfix</a></div><div class="ttdeci">Node * expression_tree_from_postfix(QString postfix_notation, QStack&lt; Node * &gt; &amp;stack, QMap&lt; int, Node * &gt; &amp;all_nodes, QList&lt; Error &gt; &amp;errors, QMap&lt; QString, QString &gt; &amp;variables, QMap&lt; QString, QString &gt; &amp;cost)</div><div class="ttdoc">Построение дерева из обратной польской записи</div><div class="ttdef"><b>Definition:</b> node.cpp:180</div></div>
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.18
+</small></address>
+</body>
+</html>
