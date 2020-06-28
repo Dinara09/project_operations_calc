@@ -127,10 +127,33 @@ void write_file (QList <Error>& errors, QString way_to_output_file, int sum)
 
 int main(int argc, char *argv[])
 {
-    QString way_to_expression = argv[1]; //путь к файлу с выражением
-    QString way_to_variables_file = argv[2]; //путь к файлу с перемнными
-    QString way_to_cost_file = argv[3]; //путь к файлу с весами операций
-    QString way_to_result_file = argv[4]; // путь к выходному файлу
+    QString way_to_expression; //путь к файлу с выражением
+    QString way_to_variables_file; //путь к файлу с перемнными
+    QString way_to_cost_file; //путь к файлу с весами операций
+    QString way_to_result_file; // путь к выходному файлу
+
+    if (argc == 5)
+    {
+        way_to_expression = argv[1];
+        way_to_variables_file = argv[2];
+        way_to_cost_file = argv[3];
+        way_to_result_file = argv[4];
+    }
+
+    else
+    {
+        cout << "Enter path of expression" << endl;
+        way_to_expression = stream.readLine();
+
+        cout << "Enter path of variables file" << endl;
+        way_to_variables_file = stream.readLine();
+
+        cout << "Enter path of cost file" << endl;
+        way_to_cost_file = stream.readLine();
+
+        cout << "Enter path of result file" << endl;
+        way_to_result_file = stream.readLine();
+    }
 
     QStack <Node*> stack; //стек для функции expression_tree_from_postfix
     QMap <int, Node*> distance_of_all_paths; //карта для хранения расстояния от вершины дерева до каждого узла
@@ -144,8 +167,6 @@ int main(int argc, char *argv[])
     QVector <int> sum_operation; //вектор для хранения веса каждой операции
     int count  = -1; //счетчик растояний от вершины дерева функции depth_of_the_tree, значение равно -1
     int sum = 0; //сумма всех операций, значение равно 0
-    //"C:/Users/dinar/OneDrive/Desktop/operations_calc/build-operations_calc-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/variables.txt"
-
 
     //считываем файл с переменными
     read_file(errors, variables, way_to_variables_file, "variables");
